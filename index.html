@@ -47,8 +47,10 @@
         <main>
             <section id="comparison-chart" class="mb-12">
                 <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-                    <h2 class="text-2xl font-bold text-center mb-2 text-[#262626]">利用開始可能年齢：一目でわかる比較チャート</h2>
-                    <p class="text-center text-gray-500 mb-6">各サービスを利用できる最低年齢（保護者の同意が必要な場合を含む）を比較しています。</p>
+                    <h2 class="text-2xl font-bold text-center mb-6 text-[#262626]">利用可能となる最低年齢</h2>
+                    
+                    <!-- 凡例の文章とマーカーをすべて削除 -->
+
                     <div class="chart-container">
                         <canvas id="ageLimitChart"></canvas>
                     </div>
@@ -90,30 +92,31 @@
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col transform hover:scale-105 transition-transform duration-300">
-                        <h3 class="text-xl font-bold mb-4 text-[#F28C28]">Anthropic (Claude)</h3>
+                        <h3 class="text-xl font-bold mb-4 text-[#E55934]">Anthropic (Claude)</h3>
                          <div class="space-y-3 mb-4 flex-grow">
                             <p class="flex items-center"><span class="text-2xl mr-3">🔞</span><strong>18歳以上のみ。</strong></p>
                             <p class="text-sm text-gray-600">未成年者の利用は認められていません。安全性と倫理的なAI利用を重視するポリシーです。</p>
                         </div>
-                        <a href="https://www.anthropic.com/legal/terms" target="_blank" rel="noopener noreferrer" class="mt-auto block text-center bg-[#F28C28] text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">利用規約へ</a>
+                        <a href="https://www.anthropic.com/legal/terms" target="_blank" rel="noopener noreferrer" class="mt-auto block text-center bg-[#E55934] text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">利用規約へ</a>
                     </div>
 
                     <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col transform hover:scale-105 transition-transform duration-300">
-                        <h3 class="text-xl font-bold mb-4 text-[#00A6A6]">Midjourney</h3>
+                        <h3 class="text-xl font-bold mb-4 text-[#F28C28]">Midjourney</h3>
                          <div class="space-y-3 mb-4 flex-grow">
                             <p class="flex items-center"><span class="text-2xl mr-3">👤</span><strong>13歳以上:</strong> デジタル同意年齢に達している必要があります。</p>
+                            <p class="flex items-center"><span class="text-2xl mr-3">👨‍👩‍👧‍👦</span><strong>18歳以上:</strong> 独立して利用可能。</p>
                             <p class="text-sm text-gray-600">成人向けコンテンツの生成は固く禁じられており、コミュニティガイドラインの遵守が求められます。</p>
                         </div>
-                        <a href="https://docs.midjourney.com/docs/terms-of-service" target="_blank" rel="noopener noreferrer" class="mt-auto block text-center bg-[#00A6A6] text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">利用規約へ</a>
+                        <a href="https://docs.midjourney.com/docs/terms-of-service" target="_blank" rel="noopener noreferrer" class="mt-auto block text-center bg-[#F28C28] text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">利用規約へ</a>
                     </div>
                     
                     <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col transform hover:scale-105 transition-transform duration-300">
-                        <h3 class="text-xl font-bold mb-4 text-[#F28C28]">Stability AI (DreamStudio)</h3>
+                        <h3 class="text-xl font-bold mb-4 text-[#E55934]">Stability AI (DreamStudio)</h3>
                          <div class="space-y-3 mb-4 flex-grow">
                             <p class="flex items-center"><span class="text-2xl mr-3">🔞</span><strong>18歳以上のみ。</strong></p>
                             <p class="text-sm text-gray-600">商用および個人利用を問わず、アカウント作成には18歳以上である必要があります。</p>
                         </div>
-                        <a href="https://platform.stability.ai/terms-of-service" target="_blank" rel="noopener noreferrer" class="mt-auto block text-center bg-[#F28C28] text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">利用規約へ</a>
+                        <a href="https://platform.stability.ai/terms-of-service" target="_blank" rel="noopener noreferrer" class="mt-auto block text-center bg-[#E55934] text-white font-bold py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors">利用規約へ</a>
                     </div>
 
                 </div>
@@ -138,25 +141,49 @@
     </div>
 
     <script>
+        // チャートのデータとベースラインの設定
+        const chartData = [
+            { label: 'OpenAI', age: 13, color: '#00A6A6' },
+            { label: 'Google Gemini', age: 13, color: '#F28C28' },
+            { label: 'Microsoft Copilot', age: 13, color: '#00A6A6' },
+            { label: 'Midjourney', age: 13, color: '#F28C28' },
+            { label: 'Anthropic Claude', age: 18, color: '#E55934' },
+            { label: 'Stability AI', age: 18, color: '#E55934' },
+        ];
+
+        // 棒グラフの開始位置 (base) を年齢制限に設定し、長さを調整
+        const labels = chartData.map(d => d.label);
+        const baseValues = chartData.map(d => d.age); // 棒グラフの開始位置（年齢制限）
+        const maxAge = 25; // 棒グラフの長さを視覚的に適度な長さに保つための仮想の最大値
+        const dataValues = chartData.map(d => maxAge - d.age); // 棒グラフの長さ
+
         const ctx = document.getElementById('ageLimitChart').getContext('2d');
         const ageLimitChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['OpenAI', 'Google Gemini', 'Microsoft Copilot', 'Midjourney', 'Anthropic Claude', 'Stability AI'],
-                datasets: [{
-                    label: '最低利用可能年齢 (歳)',
-                    data: [13, 13, 13, 13, 18, 18],
-                    backgroundColor: [
-                        '#00A6A6',
-                        '#F28C28',
-                        '#00A6A6',
-                        '#F28C28',
-                        '#E55934',
-                        '#E55934',
-                    ],
+                labels: labels,
+                datasets: [
+                {
+                    // 棒グラフの開始位置を表現するための透明なスタック（見えない棒）
+                    label: '利用不可エリア',
+                    data: baseValues, 
+                    backgroundColor: 'rgba(0, 0, 0, 0)', 
+                    borderColor: 'rgba(0, 0, 0, 0)',
+                    borderWidth: 0,
+                    borderRadius: 0,
+                    stack: 'stack0',
+                    
+                },
+                {
+                    // 実際に表示される棒グラフ。X軸上ではbaseValuesの位置から始まる
+                    label: '利用可能エリア',
+                    data: dataValues, 
+                    backgroundColor: chartData.map(d => d.color),
                     borderColor: '#ffffff',
                     borderWidth: 2,
                     borderRadius: 8,
+                    stack: 'stack0',
+                    
                 }]
             },
             options: {
@@ -165,21 +192,39 @@
                 indexAxis: 'y',
                 scales: {
                     x: {
-                        beginAtZero: true,
+                        min: 5, // 5歳から開始
+                        max: maxAge, 
+                        stacked: true,
                         title: {
-                            display: true,
-                            text: '年齢 (歳)',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            }
+                            display: false
                         },
                         grid: {
-                            color: '#e0e0e0',
-                            borderColor: '#cccccc'
+                            color: '#e5e7eb', // 薄いグリッド線のみ残す
+                            lineWidth: 1,
+                            drawOnChartArea: true,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            stepSize: 5,
+                            callback: function(value) {
+                                // 13歳と18歳を太字で強調し、5歳刻みも表示
+                                if (value === 13) return '13歳';
+                                if (value === 18) return '18歳';
+                                // 5歳刻みで表示し、13, 18と重複しないように調整
+                                return value % 5 === 0 ? value + '歳' : ''; 
+                            },
+                           font: {
+                                size: 14,
+                                // 13歳と18歳の目盛りのみを太字で強調
+                                weight: function(context) {
+                                    const value = context.tick ? context.tick.value : null;
+                                    return (value === 13 || value === 18) ? 'bold' : 'normal';
+                                }
+                            }
                         }
                     },
                     y: {
+                        stacked: true,
                         grid: {
                             display: false
                         },
@@ -206,6 +251,13 @@
                             size: 14
                         },
                         callbacks: {
+                            // ツールチップに年齢制限値を表示
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                // baseValuesが年齢制限の値
+                                const age = baseValues[index]; 
+                                return ' 利用可能年齢: ' + age + '歳から';
+                            },
                             title: function(tooltipItems) {
                                 const item = tooltipItems[0];
                                 let label = item.chart.data.labels[item.dataIndex];
